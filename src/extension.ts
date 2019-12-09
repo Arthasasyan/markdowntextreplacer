@@ -2,9 +2,28 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+
+
+class Replacement {
+
+	constructor(private _regex: string, private _repl: string) {}
+
+	get regex() {
+		return this._regex;
+	}
+
+	get repl() {
+		return this._repl;
+	}
+}
+
+let replacements: Array<Replacement> = new Array();
+
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	replacements.push(new Replacement('--', '—'))
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
@@ -13,15 +32,29 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
-		vscode.window.showErrorMessage('Sorry, I don\'t speak chartsdeveloperian');
+	let disposable = vscode.commands.registerCommand('replacer.replaceAll', () => {
+		let editor = getEditor();
+		let document: vscode.TextDocument = editor.document;
+		if (!document) {
+			throw new Error('Document is undefined!');
+		}
+		let text: string = document.getText(editor.selection);
+		replacements.forEach((replacement)=> {
+			text = text.replace(replacement.regex, replacement.repl);
+		})
+		editor.edit((editBuilder) => {
+			editBuilder.replace(editor.selection, text)
+		})
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+function getEditor(): vscode.TextEditor {
+	if (vscode.window.activeTextEditor) {
+		return vscode.window.activeTextEditor;
+	}
+	throw new Error('Editor is undefined');
 }
 
 // this method is called when your extension is deactivated

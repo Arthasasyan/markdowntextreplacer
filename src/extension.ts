@@ -38,13 +38,17 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!document) {
 			throw new Error('Document is undefined!');
 		}
-		let text: string = document.getText(editor.selection);
+		let text: string = document.getText();
 		replacements.forEach((replacement)=> {
 			text = text.replace(replacement.regex, replacement.repl);
-		})
+		});
 		editor.edit((editBuilder) => {
-			editBuilder.replace(editor.selection, text)
-		})
+			let firstPosition = new vscode.Position(0, 0);
+			let lastLine = document.lineAt(document.lineCount - 1);
+			let lastPosition = new vscode.Position(document.lineCount - 1, lastLine.text.length );
+			let range = new vscode.Range(firstPosition, lastPosition);
+			editBuilder.replace(range, text);
+		});
 	});
 
 	context.subscriptions.push(disposable);

@@ -10,7 +10,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:replacer.replaceAll"
+		"onCommand:replacer.replaceAll",
+		"onCommand:replacer.addReplacement"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -18,6 +19,10 @@
 			{
 				"command": "replacer.replaceAll",
 				"title": "Replace Values"
+			},
+			{
+				"command": "replacer.addReplacement",
+				"title": "Add Replacement"
 			}
 		]
 	},

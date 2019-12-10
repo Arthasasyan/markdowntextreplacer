@@ -32,7 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('replacer.replaceAll', () => {
+	let replacement = vscode.commands.registerCommand('replacer.replaceAll', () => {
 		let editor = getEditor();
 		let document: vscode.TextDocument = editor.document;
 		if (!document) {
@@ -51,7 +51,38 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	context.subscriptions.push(disposable);
+	let addReplacement = vscode.commands.registerCommand('replacer.addReplacement', () => {
+		let regex: string = "";
+		let repl: string = "";
+		vscode.window.showInputBox({
+			ignoreFocusOut: true,
+			password: false,
+			placeHolder: "[0-9]",
+			prompt: "Enter regex to be replaced"
+		}).then(input => {
+			if(!input || input === "") {
+				throw new Error('Regex Input is empty!');
+			}
+			regex = input;
+
+			vscode.window.showInputBox({
+				ignoreFocusOut: true,
+				password: false,
+				placeHolder: "Replacement",
+				prompt: "Enter replacement for regex"
+			}).then(input => {
+				if(!input || input === "") {
+					throw new Error('Replacement Input is empty!');
+				}
+				repl = input;
+				replacements.push(new Replacement(regex, repl));
+			});
+
+		});
+	});
+
+	context.subscriptions.push(replacement);
+	context.subscriptions.push(addReplacement);
 }
 
 function getEditor(): vscode.TextEditor {

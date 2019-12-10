@@ -51,38 +51,52 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	let addReplacement = vscode.commands.registerCommand('replacer.addReplacement', () => {
-		let regex: string = "";
-		let repl: string = "";
-		vscode.window.showInputBox({
-			ignoreFocusOut: true,
-			password: false,
-			placeHolder: "[0-9]",
-			prompt: "Enter regex to be replaced"
-		}).then(input => {
-			if(!input || input === "") {
-				throw new Error('Regex Input is empty!');
-			}
-			regex = input;
-
-			vscode.window.showInputBox({
-				ignoreFocusOut: true,
-				password: false,
-				placeHolder: "Replacement",
-				prompt: "Enter replacement for regex"
-			}).then(input => {
-				if(!input || input === "") {
-					throw new Error('Replacement Input is empty!');
-				}
-				repl = input;
-				replacements.push(new Replacement(regex, repl));
-			});
-
-		});
+	let addReplacement = vscode.commands.registerCommand('replacer.addReplacement', async function() {
+		let regex: string = await getRegex();
+		let repl: string = await getReplacement();
+		replacements.push(new Replacement(regex, repl));
 	});
 
 	context.subscriptions.push(replacement);
 	context.subscriptions.push(addReplacement);
+}
+
+ async function getRegex(){
+	let inputWindow = await vscode.window.showInputBox({
+		ignoreFocusOut: true,
+		password: false,
+		placeHolder: "[0-9]",
+		prompt: "Enter regex to be replaced"
+	}).then(input => {
+		if(!input || input === "") {
+			throw new Error('Regex Input is empty!');
+		} else {
+			return input;
+		}
+	}, err => {
+		vscode.window.showErrorMessage('Empty regex window');
+	});
+
+	return inputWindow;
+}
+
+async function getReplacement(){
+	let inputWindow = await vscode.window.showInputBox({
+		ignoreFocusOut: true,
+		password: false,
+		placeHolder: "Replacement",
+		prompt: "Enter replacement to be replaced"
+	}).then(input => {
+		if(!input || input === "") {
+			throw new Error('Regex Input is empty!');
+		} else {
+			return input;
+		}
+	}, err => {
+		vscode.window.showErrorMessage('Empty replacement window');
+	});
+
+	return inputWindow;
 }
 
 function getEditor(): vscode.TextEditor {
